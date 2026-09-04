@@ -1,0 +1,6 @@
+cryptography
+pydantic-settings
+loguru
+pytest
+pytest-asyncio
+httpx
