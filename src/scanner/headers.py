@@ -1,6 +1,7 @@
 import httpx
 from src.core.config import settings
 from src.scanner.schemas import HeaderCheckResult, HeadersScanReport, Severity
+from src.scanner.base import BaseScanner
 
 SECURITY_HEADERS = {
     "Strict-Transport-Security": {
@@ -25,7 +26,7 @@ SECURITY_HEADERS = {
     },
 }
 
-class HeadersScanner:
+class HeadersScanner(BaseScanner):
     async def scan(self, url: str) -> HeadersScanReport:
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"

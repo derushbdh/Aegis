@@ -3,6 +3,7 @@ import httpx
 
 from src.core.config import settings
 from src.scanner.schemas import FileCheckResult, SensitiveFilesReport, Severity
+from src.scanner.base import BaseScanner
 
 TARGET_FILES = {
     "/.env": {
@@ -23,7 +24,7 @@ TARGET_FILES = {
 }
 
 
-class SensitiveFilesScanner:
+class SensitiveFilesScanner(BaseScanner):
     def _is_file_exposed(
         self, response: httpx.Response, 
         signature: str

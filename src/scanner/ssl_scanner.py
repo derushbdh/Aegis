@@ -6,8 +6,9 @@ import asyncio
 
 from src.scanner.schemas import SSLScanReport
 from src.core.config import settings
+from src.scanner.base import BaseScanner
 
-class SSLScanner:
+class SSLScanner(BaseScanner):
     def _extract_hostname(self, url: str) -> str:
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"

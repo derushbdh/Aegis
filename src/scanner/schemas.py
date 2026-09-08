@@ -41,3 +41,10 @@ class SensitiveFilesReport(BaseModel):
     files: list[FileCheckResult]
     has_leaks: bool
     leaked_count: int
+
+
+class FullScanReport(BaseModel):
+    url: str
+    headers_report: HeadersScanReport
+    ssl_report: SSLScanReport
+    files_report: SensitiveFilesReport
