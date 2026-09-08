@@ -27,3 +27,17 @@ class SSLScanReport(BaseModel):
     days_left: int | None = None
     issuer: str | None = None
     error: str | None = None
+
+
+class FileCheckResult(BaseModel):
+    path: str
+    is_exposed: bool
+    url: str
+    severity: Severity
+    description: str
+
+class SensitiveFilesReport(BaseModel):
+    target_url: str
+    files: list[FileCheckResult]
+    has_leaks: bool
+    leaked_count: int
