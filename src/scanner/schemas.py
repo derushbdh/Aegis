@@ -1,0 +1,29 @@
+from pydantic import BaseModel
+from enum import Enum
+
+class Severity(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class HeaderCheckResult(BaseModel):
+    header_name: str
+    is_present: bool
+    value: str | None = None
+    severity: Severity
+    description: str
+
+class HeadersScanReport(BaseModel):
+    target_url: str
+    headers: list[HeaderCheckResult]
+    safety_percentage: float
+
+
+class SSLScanReport(BaseModel):
+    host: str
+    is_valid: bool
+    days_left: int | None = None
+    issuer: str | None = None
+    error: str | None = None
