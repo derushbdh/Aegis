@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     BOT_TOKEN: SecretStr
 
+    REDIS_URL: str = "redis://localhost:6379/0"
+
     SCANNER_TIMEOUT: float=10.0
     SCANNER_USER_AGENT: str="Aegis-Security-Scanner (+https://github.com/derushbdh/Aegis)"
 

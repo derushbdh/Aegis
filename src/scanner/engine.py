@@ -1,5 +1,4 @@
 import asyncio
-import httpx
 
 from src.core.config import settings
 from src.scanner import HeadersScanner, SSLScanner, SensitiveFilesScanner

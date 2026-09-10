@@ -1,5 +1,7 @@
 cryptography
 pydantic-settings
+taskiq
+taskiq-redis
 loguru
 pytest
 pytest-asyncio

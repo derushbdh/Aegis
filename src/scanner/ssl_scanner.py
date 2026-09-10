@@ -53,4 +53,6 @@ class SSLScanner(BaseScanner):
     
     async def scan(self, url) -> SSLScanReport:
         hostname = self._extract_hostname(url)
+        
+        # because socket doesn't support async
         return await asyncio.to_thread(self._get_certificate, hostname)
