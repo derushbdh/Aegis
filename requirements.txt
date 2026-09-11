@@ -1,5 +1,6 @@
 cryptography
 pydantic-settings
+aiogram
 taskiq
 taskiq-redis
 loguru
