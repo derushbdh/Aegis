@@ -57,3 +57,28 @@ def format_scan_report(report: dict) -> str:
                 lines.append(f"    • ⚠️ <code>{f_path}</code> доступен публично!")
 
     return "\n".join(lines)
+
+
+from src.ai.schemas import AIConsultantReport
+
+
+def format_ai_report(ai_report: AIConsultantReport) -> str:
+    lines = [
+        "🤖 <b>Заключение Белого Хакера (AI):</b>",
+        f"<i>«{html.escape(ai_report.verdict)}»</i>",
+        "",
+        "⚠️ <b>Выявленные риски:</b>",
+    ]
+    if ai_report.risks:
+        for risk in ai_report.risks:
+            lines.append(f"  • {html.escape(risk)}")
+    else:
+        lines.append("  ✅ Уязвимостей и критических рисков не обнаружено.")
+
+    if ai_report.recommendations:
+        lines.append("")
+        lines.append("🛠 <b>Рекомендации:</b>")
+        for rec in ai_report.recommendations:
+            lines.append(f"  • {html.escape(rec)}")
+
+    return "\n".join(lines)
