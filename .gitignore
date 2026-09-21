@@ -10,5 +10,6 @@ data/
 ref.md
 .env
 pyrightconfig.json
+pyrefly.toml
 
 test_scan.py
