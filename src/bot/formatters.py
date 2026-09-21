@@ -82,3 +82,34 @@ def format_ai_report(ai_report: AIConsultantReport) -> str:
             lines.append(f"  • {html.escape(rec)}")
 
     return "\n".join(lines)
+
+def format_history_report(records: list) -> str:
+    if not records:
+        return (
+            "📭 <b>У вас пока нет истории аудитов.</b>\n\n"
+            "Запустите первую проверку командой:\n"
+            "<code>/scan https://example.com</code>"
+        )
+
+    lines = [
+        "📜 <b>История последних аудитов безопасности:</b>",
+        ""
+    ]
+
+    for i, scan in enumerate(records, 1):
+        dt_str = scan.created_at.strftime("%d.%m.%Y %H:%M") if scan.created_at else "Неизвестно"
+        ssl_status = "🟢 SSL OK" if scan.ssl_valid else "🔴 Без SSL"
+        leaks_status = "🚨 Утечки!" if scan.has_leaks else "🛡 Утечек нет"
+
+        lines.append(f"<b>{i}. 🌐 {html.escape(scan.target_url)}</b>")
+        lines.append(f"   📅 <i>{dt_str}</i>")
+        lines.append(f"   📊 Заголовки: <b>{scan.headers_score}%</b> | {ssl_status} | {leaks_status}")
+        
+        if scan.ai_verdict:
+            # Берем первое предложение вердикта ИИ для компактности
+            short_verdict = scan.ai_verdict.split("\n")[0][:100]
+            lines.append(f"   🤖 <i>«{html.escape(short_verdict)}...»</i>")
+        
+        lines.append("")
+
+    return "\n".join(lines)

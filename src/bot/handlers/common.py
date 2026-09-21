@@ -21,5 +21,6 @@ async def cmd_help(message: Message) -> None:
     await message.answer(
         "📖 <b>Как пользоваться сканером:</b>\n\n"
         "• <code>/scan &lt;url&gt;</code> — быстрый запуск проверки целевого хоста\n"
-        "• <code>/help</code> — это справочное сообщение"
+        "• <code>/help</code> — это справочное сообщение\n"
+        "• <code>/history</code> — история ваших проверок"
     )
