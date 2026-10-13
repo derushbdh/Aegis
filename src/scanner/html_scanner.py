@@ -1,8 +1,7 @@
-import httpx
-from src.core.config import settings
+from httpx import Response
 from bs4 import BeautifulSoup, Comment
 
-from src.scanner.base import BaseScanner
+from src.scanner.base import BaseResponseScanner
 from src.scanner.schemas import HTMLFinding, HTMLScanReport, Severity
 
 VULNERABLE_COMMENTS = {
@@ -55,18 +54,8 @@ VULNERABLE_COMMENTS = {
 }
 
 
-class HTMLScanner(BaseScanner):
-    async def scan(self, url: str) -> HTMLScanReport:
-        if not url.startswith(('http://', 'https://')):
-            url = f'https://{url}'
-
-        async with httpx.AsyncClient(
-            timeout=settings.SCANNER_TIMEOUT,
-            headers={'User-agent': settings.SCANNER_USER_AGENT},
-            follow_redirects=True
-        ) as client:
-            response = await client.get(url)
-
+class HTMLScanner(BaseResponseScanner):
+    async def scan(self, response: Response) -> HTMLScanReport:
         findings: list[HTMLFinding] = []
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -76,7 +65,7 @@ class HTMLScanner(BaseScanner):
         findings.extend(self._check_links(soup))
 
         return HTMLScanReport(
-            target_url=url,
+            target_url=str(response.url),
             findings=findings,
             has_issues=(len(findings) > 0),
             total_issues=len(findings),

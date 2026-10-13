@@ -1,7 +1,6 @@
-import httpx
+from httpx import Response
 
-from src.core.config import settings
-from src.scanner.base import BaseScanner
+from src.scanner.base import BaseResponseScanner
 from src.scanner.schemas import CookieFinding, CookiesScanReport, Severity
 
 FLAGS = {
@@ -19,24 +18,14 @@ FLAGS = {
     },
 }
 
-class CookiesScanner(BaseScanner):
-    async def scan(self, url: str) -> CookiesScanReport:
-        if not url.startswith(('http://', 'https://')):
-            url = f'https://{url}'
-
-        async with httpx.AsyncClient(
-            timeout=settings.SCANNER_TIMEOUT,
-            headers={'User-agent': settings.SCANNER_USER_AGENT},
-            follow_redirects=True,
-        ) as client:
-            response = await client.get(url)
-
+class CookiesScanner(BaseResponseScanner):
+    async def scan(self, response: Response) -> CookiesScanReport:
         raw_cookies: list[str] = response.headers.get_list('set-cookie')
 
         cookies_scan = self._check_cookies(raw_cookies)
 
         return CookiesScanReport(
-            target_url=url,
+            target_url=str(response.url),
             total_cookies=len(raw_cookies),
             has_issues=len(cookies_scan) > 0,
             findings=cookies_scan,

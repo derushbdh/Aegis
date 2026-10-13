@@ -56,7 +56,7 @@ class SensitiveFilesScanner(BaseScanner):
             is_exposed=is_exposed,
             url=file_url,
             severity=meta["severity"],
-            description=meta["description"]
+            description=meta["description"],
         )
 
     async def scan(
@@ -69,7 +69,7 @@ class SensitiveFilesScanner(BaseScanner):
         async with httpx.AsyncClient(
             timeout=settings.SCANNER_TIMEOUT,
             headers={"User-agent": settings.SCANNER_USER_AGENT},
-            follow_redirects=True
+            follow_redirects=True,
         ) as client:
             tasks = [
                 self._check_file(client, url, path, meta)

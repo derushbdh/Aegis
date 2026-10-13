@@ -1,7 +1,7 @@
-import httpx
-from src.core.config import settings
+from httpx import Response
+
 from src.scanner.schemas import HeaderCheckResult, HeadersScanReport, Severity
-from src.scanner.base import BaseScanner
+from src.scanner.base import BaseResponseScanner
 
 SECURITY_HEADERS = {
     "Strict-Transport-Security": {
@@ -26,18 +26,8 @@ SECURITY_HEADERS = {
     },
 }
 
-class HeadersScanner(BaseScanner):
-    async def scan(self, url: str) -> HeadersScanReport:
-        if not url.startswith(("http://", "https://")):
-            url = f"https://{url}"
-        
-        async with httpx.AsyncClient(
-            timeout=settings.SCANNER_TIMEOUT,
-            headers={"User-Agent": settings.SCANNER_USER_AGENT},
-            follow_redirects=True
-        ) as client:
-            response = await client.get(url)
-        
+class HeadersScanner(BaseResponseScanner):
+    async def scan(self, response: Response) -> HeadersScanReport:
         results: list[HeaderCheckResult] = []
 
         count = 0
@@ -47,7 +37,7 @@ class HeadersScanner(BaseScanner):
 
             if is_present:
                 count += 1
-            
+
             results.append(
                 HeaderCheckResult(
                     header_name=header_name,
@@ -57,12 +47,12 @@ class HeadersScanner(BaseScanner):
                     description=meta["description"]
                 )
             )
-        
+
         safety_percentage = (count / len(SECURITY_HEADERS)) * 100.0
 
 
         return HeadersScanReport(
-            target_url=url,
+            target_url=str(response.url),
             headers=results,
             safety_percentage=round(safety_percentage, 1)
         )
