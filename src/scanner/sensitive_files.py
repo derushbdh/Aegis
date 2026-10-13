@@ -8,18 +8,18 @@ from src.scanner.base import BaseScanner
 TARGET_FILES = {
     "/.env": {
         "severity": Severity.CRITICAL,
-        "description": "Файл переменных окружения с секретами и паролями",
-        "signature": "="  # в файле env обязательно есть знак равенства (KEY=VALUE)
+        "description": "Environment configuration file containing credentials and secrets",
+        "signature": "="  # env file contains KEY=VALUE
     },
     "/.git/HEAD": {
         "severity": Severity.CRITICAL,
-        "description": "Служебный файл Git (утечка исходного кода)",
-        "signature": "ref: refs/"  # стандартное начало любого git-файла HEAD
+        "description": "Git repository metadata exposing source code",
+        "signature": "ref: refs/"  # standard HEAD prefix
     },
     "/docker-compose.yml": {
         "severity": Severity.HIGH,
-        "description": "Конфигурация контейнеров Docker Compose",
-        "signature": "services:"  # в docker-compose всегда есть секция services
+        "description": "Docker Compose service configuration and environment details",
+        "signature": "services:"  # docker-compose services definition
     }
 }
 

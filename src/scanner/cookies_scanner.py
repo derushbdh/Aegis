@@ -7,15 +7,15 @@ from src.scanner.schemas import CookieFinding, CookiesScanReport, Severity
 FLAGS = {
     'httponly': {
         'severity': Severity.HIGH,
-        'description': 'Denies to read cookie with JS',
+        'description': 'Missing HttpOnly flag (cookie accessible via JavaScript / XSS)',
     },
     'secure': {
         'severity': Severity.HIGH,
-        'description': 'Allows to transport cookies only with HTTPS protocol',
+        'description': 'Missing Secure flag (cookie can be transmitted over unencrypted HTTP)',
     },
     'samesite': {
         'severity': Severity.MEDIUM,
-        'description': 'Controls cookie transport throughout redirects from third-party sites'
+        'description': 'Missing SameSite flag (cookie sent on cross-site requests, risking CSRF)'
     },
 }
 

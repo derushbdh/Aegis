@@ -1,41 +1,43 @@
 import json
 
-SYSTEM_PROMPT = """Ты — ведущий инженер по безопасности веб-приложений и этичный консультант (White-Hat Security Auditor).
-Твоя задача — проанализировать технический отчет сканирования сайта и предоставить объективное экспертное заключение для разработчиков.
+SYSTEM_PROMPT = """You are a lead web application security engineer and ethical security consultant (White-Hat Security Auditor).
+Your task is to analyze the technical website scan report and provide an objective expert assessment for developers.
 
-КРИТИЧЕСКИЕ ПРАВИЛА:
-1. Опирайся ИСКЛЮЧИТЕЛЬНО на факты из отчета. Строго запрещено придумывать или предполагать уязвимости (никаких галлюцинаций).
-2. Если файл или уязвимость помечены как безопасные (например, утечек файлов нет или проблем в HTML нет), КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать, что файл доступен или утек.
-3. Если уязвимостей и утечек нет (100% заголовков, валидный SSL, 0 утечек файлов, 0 проблем в HTML):
-   - Поле "risks" ОБЯЗАНО быть пустым списком: []
-   - "verdict" должен содержать положительную оценку отличной защиты сайта.
-   - "recommendations" могут содержать общие рекомендации по дальнейшему мониторингу или быть пустым списком.
-4. Если проблемы обнаружены:
-   - В "risks" опиши ТОЛЬКО РЕАЛЬНО обнаруженные проблемы (отсутствующие заголовки, невалидный SSL, реально утекшие файлы, найденные уязвимости в HTML/формах/комментариях).
-   - В "recommendations" дай конкретные шаги по устранению каждой обнаруженной проблемы (включая рекомендации по настройке CSRF, защите паролей, удалению отладочных комментариев и атрибутам rel="noopener noreferrer").
-5. Ответ верни СТРОГО в виде валидного JSON-объекта со следующими полями:
+CRITICAL RULES:
+1. Base your analysis STRICTLY on the facts provided in the report. Do not invent or assume vulnerabilities (no hallucinations).
+2. If a file or component is marked as safe (e.g., no file leaks, no HTML or cookie issues), it is STRICTLY PROHIBITED to claim it is exposed or vulnerable.
+3. If there are no vulnerabilities or leaks (100% headers, valid SSL, 0 file leaks, 0 HTML issues, secure cookies):
+   - The "risks" field MUST be an empty list: []
+   - The "verdict" must contain a positive evaluation of the website's robust security posture.
+   - The "recommendations" can provide general maintenance/monitoring suggestions or be an empty list.
+4. If problems are detected:
+   - In "risks", describe ONLY REAL findings detected in the report (missing headers, invalid SSL, exposed files, HTML/form/comment vulnerabilities, insecure cookies).
+   - In "recommendations", provide concrete mitigation steps for each identified issue (including cookie flags HttpOnly, Secure, SameSite, CSRF tokens, password over HTTPS).
+5. Output response STRICTLY in valid JSON format matching this schema:
 {
-  "verdict": "Краткий общий вердикт о состоянии защиты сайта",
-  "risks": ["риск 1", "риск 2"],
-  "recommendations": ["рекомендация 1", "рекомендация 2"]
+  "verdict": "Brief summary verdict on website security posture in English",
+  "risks": ["risk 1", "risk 2"],
+  "recommendations": ["recommendation 1", "recommendation 2"]
 }
+Respond entirely in English.
 """
 
 
 def build_user_prompt(scan_data: dict) -> str:
-    url = scan_data.get("url", "Не указан")
+    url = scan_data.get("url", "Not specified")
     ssl = scan_data.get("ssl_report", {})
     headers = scan_data.get("headers_report", {})
     files = scan_data.get("files_report", {})
     html = scan_data.get("html_report", {})
+    cookies = scan_data.get("cookies_report", {})
 
     # SSL summary
     if ssl.get("is_valid"):
-        ssl_summary = f"Действителен (осталось дней: {ssl.get('days_left')}), издатель: {ssl.get('issuer')}"
+        ssl_summary = f"Valid ({ssl.get('days_left')} days remaining), issuer: {ssl.get('issuer')}"
     else:
-        ssl_summary = f"ОШИБКА или недействителен ({ssl.get('error')})"
+        ssl_summary = f"ERROR or invalid ({ssl.get('error')})"
 
-    # Headers summary - только отсутствующие
+    # Headers summary - only missing ones
     missing_headers = [
         {
             "header": h.get("header_name"),
@@ -47,7 +49,7 @@ def build_user_prompt(scan_data: dict) -> str:
     ]
     headers_pct = headers.get("safety_percentage", 0)
 
-    # Exposed files summary - ТОЛЬКО реально утекшие файлы
+    # Exposed files summary - ONLY genuinely exposed files
     exposed_files = [
         {
             "path": f.get("path"),
@@ -69,19 +71,37 @@ def build_user_prompt(scan_data: dict) -> str:
         for f in html.get("findings", [])
     ]
 
+    # Cookies vulnerabilities summary
+    cookie_findings = [
+        {
+            "cookie_name": cf.get("cookie_name"),
+            "severity": cf.get("severity"),
+            "description": cf.get("description"),
+        }
+        for cf in cookies.get("findings", [])
+    ]
+    total_cookies = cookies.get("total_cookies", 0)
+    if total_cookies == 0:
+        cookies_summary = "Host does not set any cookies"
+    elif not cookie_findings:
+        cookies_summary = f"All cookies ({total_cookies}) are secured with HttpOnly, Secure, and SameSite flags"
+    else:
+        cookies_summary = cookie_findings
+
     clean_summary = {
         "target_url": url,
         "ssl_status": ssl_summary,
         "headers_score": f"{headers_pct:.0f}%",
-        "missing_security_headers": missing_headers if missing_headers else "Все ключевые заголовки безопасности настроены правильно (100%)",
-        "exposed_sensitive_files": exposed_files if exposed_files else "Утечек нет. Все конфиденциальные файлы защищены и недоступны публично",
-        "html_vulnerabilities": html_findings if html_findings else "Проблем в структуре HTML (незащищенные формы, комментарии с паролями, небезопасные ссылки) не обнаружено",
+        "missing_security_headers": missing_headers if missing_headers else "All critical security headers are configured properly (100%)",
+        "exposed_sensitive_files": exposed_files if exposed_files else "No leaks. All sensitive files are protected and not publicly accessible",
+        "html_vulnerabilities": html_findings if html_findings else "No HTML structure vulnerabilities (insecure forms, comments with secrets, reverse tabnabbing) detected",
+        "cookies_vulnerabilities": cookies_summary,
     }
 
     return (
-        "Проанализируй следующие результаты технического аудита безопасности:\n"
+        "Analyze the following technical security audit results:\n"
         f"```json\n{json.dumps(clean_summary, ensure_ascii=False, indent=2)}\n```\n"
-        "Сформируй экспертный вердикт, список рисков и рекомендации по исправлению в формате JSON.\n"
-        "ВАЖНО: Если уязвимости отсутствуют и файлы не утекли, список risks должен быть пустым [], "
-        "а вердикт должен подтверждать надежную защиту сайта."
+        "Generate an expert verdict, list of risks, and actionable recommendations in JSON format in English.\n"
+        "IMPORTANT: If no vulnerabilities were found and no files leaked, the 'risks' list MUST be empty [], "
+        "and the verdict must confirm strong security posture."
     )

@@ -7,20 +7,22 @@ router = Router(name="common")
 @router.message(CommandStart())
 async def cmd_start(message: Message) -> None:
     await message.answer(
-        "🛡 <b>Добро пожаловать в Aegis Security Scanner!</b>\n\n"
-        "Я провожу автоматический black-box аудит безопасности веб-сайтов:\n"
-        "• Проверка SSL/TLS сертификата и срока действия\n"
-        "• Анализ критических заголовков безопасности (HSTS, CSP, etc.)\n"
-        "• Поиск утечек конфиденциальных файлов (.env, .git, etc.)\n\n"
-        "Чтобы запустить аудит, отправь команду:\n"
+        "🛡 <b>Welcome to Aegis Security Scanner!</b>\n\n"
+        "I perform automated black-box website security audits:\n"
+        "• SSL/TLS certificate validation and expiration checks\n"
+        "• Security headers analysis (HSTS, CSP, etc.)\n"
+        "• Sensitive file leak detection (.env, .git, etc.)\n"
+        "• HTML markup vulnerability scanning (forms, comments, links)\n"
+        "• Cookie security configuration audit (HttpOnly, Secure, SameSite)\n\n"
+        "To start an audit, send the command:\n"
         "<code>/scan https://example.com</code>"
     )
 
 @router.message(Command("help"))
 async def cmd_help(message: Message) -> None:
     await message.answer(
-        "📖 <b>Как пользоваться сканером:</b>\n\n"
-        "• <code>/scan &lt;url&gt;</code> — быстрый запуск проверки целевого хоста\n"
-        "• <code>/help</code> — это справочное сообщение\n"
-        "• <code>/history</code> — история ваших проверок"
+        "📖 <b>How to use the scanner:</b>\n\n"
+        "• <code>/scan &lt;url&gt;</code> — run a security audit on the target host\n"
+        "• <code>/help</code> — show this help message\n"
+        "• <code>/history</code> — view your recent scan history"
     )

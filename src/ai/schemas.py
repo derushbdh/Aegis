@@ -2,11 +2,11 @@ from pydantic import BaseModel, Field
 
 class AIConsultantReport(BaseModel):
     verdict: str = Field(
-        description="Краткий экспертный вердикт белого хакера о текущем состоянии сайта"
+        description="Brief expert verdict from a white-hat security auditor regarding the website's security posture"
     )
     risks: list[str] = Field(
-        description="Список выявленных рисков и возможных сценариев атак простым языком"
+        description="List of identified security risks and potential attack scenarios in plain English"
     )
     recommendations: list[str] = Field(
-        description="Конкретные пошаговые рекомендации для исправления уязвимостей"
+        description="Concrete, actionable recommendations for remediating vulnerabilities"
     )

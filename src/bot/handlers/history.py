@@ -13,10 +13,10 @@ router = Router(name="history")
 async def cmd_history(message: Message) -> None:
     async with async_session() as session:
         history = await get_user_history(session, telegram_id=message.from_user.id, limit=5)
-    # Вот та самая проверка!
+    # Check if history is empty
     if not history:
         await message.answer(
-            "📭 <b>У вас пока нет ни одного аудита.</b>\n\n"
+            "📭 <b>You don't have any audits yet.</b>\n\n"
         )
         return
 

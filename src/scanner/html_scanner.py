@@ -8,51 +8,49 @@ from src.scanner.schemas import HTMLFinding, HTMLScanReport, Severity
 VULNERABLE_COMMENTS = {
     "password": {
         "severity": Severity.HIGH,
-        "description": "Возможное упоминание пароля в HTML-комментарии",
+        "description": "Potential password exposure in HTML comment",
     },
     "passwd": {
         "severity": Severity.HIGH,
-        "description": "Возможное упоминание пароля в HTML-комментарии",
+        "description": "Potential password exposure in HTML comment",
     },
     "api_key": {
         "severity": Severity.HIGH,
-        "description": "Возможная утечка API-ключа в HTML-комментарии",
+        "description": "Potential API key leak in HTML comment",
     },
     "token": {
         "severity": Severity.HIGH,
-        "description": "Возможная утечка токена авторизации в HTML-комментарии",
+        "description": "Potential authorization token leak in HTML comment",
     },
     "secret": {
         "severity": Severity.HIGH,
-        "description": "Возможная утечка секрета или ключа в HTML-комментарии",
+        "description": "Potential secret or private key leak in HTML comment",
     },
-
 
     "localhost": {
         "severity": Severity.MEDIUM,
-        "description": "Раскрытие локального адреса или тестового окружения",
+        "description": "Disclosure of local address or staging environment",
     },
     "127.0.0.1": {
         "severity": Severity.MEDIUM,
-        "description": "Раскрытие внутреннего IP-адреса",
+        "description": "Disclosure of internal IP address",
     },
     "/var/www": {
         "severity": Severity.MEDIUM,
-        "description": "Раскрытие пути к серверной файловой системе",
+        "description": "Disclosure of server filesystem path",
     },
-
 
     "todo": {
         "severity": Severity.LOW,
-        "description": "Заметка разработчика (TODO) в продакшн-коде",
+        "description": "Developer note (TODO) left in production code",
     },
     "fixme": {
         "severity": Severity.LOW,
-        "description": "Заметка о неисправности (FIXME) в продакшн-коде",
+        "description": "Unresolved issue note (FIXME) in production code",
     },
     "hack": {
         "severity": Severity.LOW,
-        "description": "Упоминание временного решения или обхода логики (HACK)",
+        "description": "Temporary workaround note (HACK) in production code",
     },
 }
 
@@ -121,8 +119,8 @@ class HTMLScanner(BaseScanner):
                     HTMLFinding(
                         category='forms',
                         severity=Severity.HIGH,
-                        description='Form sends data with no security HTTP protocol',
-                        evidence=f'String: {form.sourceline} | {str(form)[:120]}',
+                        description='Insecure form action submitting data over unencrypted HTTP',
+                        evidence=f'Line {form.sourceline}: {str(form)[:120]}',
                     )
                 )
 
@@ -132,8 +130,8 @@ class HTMLScanner(BaseScanner):
                     HTMLFinding(
                         category='forms',
                         severity=Severity.HIGH,
-                        description='Form sends password in URL',
-                        evidence=f'String: {form.sourceline} | {str(form)[:120]}',
+                        description='Form submits password using GET method (exposed in URL query)',
+                        evidence=f'Line {form.sourceline}: {str(form)[:120]}',
                     )
                 )
 
@@ -143,8 +141,8 @@ class HTMLScanner(BaseScanner):
                     HTMLFinding(
                         category='forms',
                         severity=Severity.HIGH,
-                        description='Input data has no protection',
-                        evidence=f'String: {form.sourceline} | {str(form)[:120]}',
+                        description='POST form lacks CSRF token protection',
+                        evidence=f'Line {form.sourceline}: {str(form)[:120]}',
                     )
                 )
 
@@ -170,8 +168,8 @@ class HTMLScanner(BaseScanner):
                     HTMLFinding(
                         category='links',
                         severity=Severity.LOW,
-                        description='Request can be redirected to another site',
-                        evidence=f'String {link.sourceline} | {str(link)[:100]}',
+                        description='Target blank link missing rel="noopener noreferrer" (Reverse Tabnabbing)',
+                        evidence=f'Line {link.sourceline}: {str(link)[:100]}',
                     )
                 )
 

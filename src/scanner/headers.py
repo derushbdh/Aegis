@@ -6,23 +6,23 @@ from src.scanner.base import BaseScanner
 SECURITY_HEADERS = {
     "Strict-Transport-Security": {
         "severity": Severity.HIGH,
-        "description": "Принудительное шифрование трафика (HSTS)"
+        "description": "Enforces encrypted HTTPS connections (HSTS)"
     },
     "X-Frame-Options": {
         "severity": Severity.HIGH,
-        "description": "Защита от атак через скрытые рамки (Clickjacking)"
+        "description": "Protects against clickjacking attacks"
     },
     "X-Content-Type-Options": {
         "severity": Severity.MEDIUM,
-        "description": "Запрет браузеру угадывать тип файлов (MIME-sniffing)"
+        "description": "Prevents MIME-sniffing vulnerabilities"
     },
     "Content-Security-Policy": {
         "severity": Severity.HIGH,
-        "description": "Ограничение источников скриптов и контента (CSP)"
+        "description": "Restricts unauthorized script execution and content sources (CSP)"
     },
     "Referrer-Policy": {
         "severity": Severity.LOW,
-        "description": "Контроль утечки путей в заголовке Referer"
+        "description": "Controls leakage of URL paths in the Referer header"
     },
 }
 

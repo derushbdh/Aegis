@@ -26,7 +26,7 @@ async def cmd_scan(
 
     target_url = command.args
     if target_url is None:
-        await message.answer("Укажите URL: /scan https://example.com")
+        await message.answer("Please specify a URL: /scan https://example.com")
         return
 
     target_url = target_url.strip()
@@ -34,18 +34,18 @@ async def cmd_scan(
     if not target_url.startswith(("http://", "https://")):
         target_url = f"https://{target_url}"
 
-    status_msg = await message.answer("🔍 Запускаю аудит безопасности...")
+    status_msg = await message.answer("🔍 Running security audit...")
 
     try:
         report = await run_security_scan(target_url)
     except Exception as e:
-        await status_msg.edit_text(f"❌ <b>Не удалось проверить сайт:</b>\n{e}")
+        await status_msg.edit_text(f"❌ <b>Failed to scan target:</b>\n{e}")
         return
 
     response_text = format_scan_report(report)
     await status_msg.edit_text(response_text)
 
-    ai_status_msg = await message.answer("🤖 AI-консультант изучает риски...")
+    ai_status_msg = await message.answer("🤖 AI consultant is analyzing security risks...")
     ai_report = await ai_consultant.analyze_scan(report)
     await ai_status_msg.edit_text(format_ai_report(ai_report))
 
