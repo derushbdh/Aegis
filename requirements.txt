@@ -11,3 +11,4 @@ asyncpg
 alembic
 sqlalchemy
 aiosqlite
+beautifulsoup4

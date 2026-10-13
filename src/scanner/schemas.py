@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from enum import Enum
 
+
 class Severity(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
@@ -14,6 +15,7 @@ class HeaderCheckResult(BaseModel):
     value: str | None = None
     severity: Severity
     description: str
+
 
 class HeadersScanReport(BaseModel):
     target_url: str
@@ -36,6 +38,7 @@ class FileCheckResult(BaseModel):
     severity: Severity
     description: str
 
+
 class SensitiveFilesReport(BaseModel):
     target_url: str
     files: list[FileCheckResult]
@@ -43,8 +46,23 @@ class SensitiveFilesReport(BaseModel):
     leaked_count: int
 
 
+class HTMLFinding(BaseModel):
+    category: str
+    severity: Severity
+    description: str
+    evidence: str | None = None
+
+
+class HTMLScanReport(BaseModel):
+    target_url: str
+    findings: list[HTMLFinding] = []
+    has_issues: bool = False
+    total_issues: int = 0
+
+
 class FullScanReport(BaseModel):
     url: str
     headers_report: HeadersScanReport
     ssl_report: SSLScanReport
     files_report: SensitiveFilesReport
+    html_report: HTMLScanReport

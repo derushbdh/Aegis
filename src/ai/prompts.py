@@ -5,14 +5,14 @@ SYSTEM_PROMPT = """Ты — ведущий инженер по безопасн�
 
 КРИТИЧЕСКИЕ ПРАВИЛА:
 1. Опирайся ИСКЛЮЧИТЕЛЬНО на факты из отчета. Строго запрещено придумывать или предполагать уязвимости (никаких галлюцинаций).
-2. Если файл или уязвимость помечены как безопасные (например, утечек файлов нет), КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать, что файл доступен или утек.
-3. Если уязвимостей и утечек нет (100% заголовков, валидный SSL, 0 утечек):
+2. Если файл или уязвимость помечены как безопасные (например, утечек файлов нет или проблем в HTML нет), КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать, что файл доступен или утек.
+3. Если уязвимостей и утечек нет (100% заголовков, валидный SSL, 0 утечек файлов, 0 проблем в HTML):
    - Поле "risks" ОБЯЗАНО быть пустым списком: []
    - "verdict" должен содержать положительную оценку отличной защиты сайта.
    - "recommendations" могут содержать общие рекомендации по дальнейшему мониторингу или быть пустым списком.
 4. Если проблемы обнаружены:
-   - В "risks" опиши ТОЛЬКО РЕАЛЬНО обнаруженные проблемы (отсутствующие заголовки, невалидный SSL, реально утекшие файлы).
-   - В "recommendations" дай конкретные шаги по устранению каждой обнаруженной проблемы.
+   - В "risks" опиши ТОЛЬКО РЕАЛЬНО обнаруженные проблемы (отсутствующие заголовки, невалидный SSL, реально утекшие файлы, найденные уязвимости в HTML/формах/комментариях).
+   - В "recommendations" дай конкретные шаги по устранению каждой обнаруженной проблемы (включая рекомендации по настройке CSRF, защите паролей, удалению отладочных комментариев и атрибутам rel="noopener noreferrer").
 5. Ответ верни СТРОГО в виде валидного JSON-объекта со следующими полями:
 {
   "verdict": "Краткий общий вердикт о состоянии защиты сайта",
@@ -27,6 +27,7 @@ def build_user_prompt(scan_data: dict) -> str:
     ssl = scan_data.get("ssl_report", {})
     headers = scan_data.get("headers_report", {})
     files = scan_data.get("files_report", {})
+    html = scan_data.get("html_report", {})
 
     # SSL summary
     if ssl.get("is_valid"):
@@ -57,12 +58,24 @@ def build_user_prompt(scan_data: dict) -> str:
         if f.get("is_exposed")
     ]
 
+    # HTML vulnerabilities summary
+    html_findings = [
+        {
+            "category": f.get("category"),
+            "severity": f.get("severity"),
+            "description": f.get("description"),
+            "evidence": f.get("evidence"),
+        }
+        for f in html.get("findings", [])
+    ]
+
     clean_summary = {
         "target_url": url,
         "ssl_status": ssl_summary,
         "headers_score": f"{headers_pct:.0f}%",
-        "missing_security_headers": missing_headers if missing_headers else "Все 5 ключевых заголовков безопасности настроены правильно (100%)",
-        "exposed_sensitive_files": exposed_files if exposed_files else "Утечек нет. Все конфиденциальные файлы (.env, .git, docker-compose и др.) защищены и недоступны публично",
+        "missing_security_headers": missing_headers if missing_headers else "Все ключевые заголовки безопасности настроены правильно (100%)",
+        "exposed_sensitive_files": exposed_files if exposed_files else "Утечек нет. Все конфиденциальные файлы защищены и недоступны публично",
+        "html_vulnerabilities": html_findings if html_findings else "Проблем в структуре HTML (незащищенные формы, комментарии с паролями, небезопасные ссылки) не обнаружено",
     }
 
     return (

@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import User, ScanRecord
 
 async def get_or_create_user(
-    session: AsyncSession, 
-    telegram_id: int, 
-    username: str | None=None, 
+    session: AsyncSession,
+    telegram_id: int,
+    username: str | None=None,
     firstname: str | None=None
     ) -> User:
     existing_user = await session.scalar(select(User).where(User.telegram_id == telegram_id))
@@ -18,7 +18,7 @@ async def get_or_create_user(
             await session.commit()
             await session.refresh(existing_user)
         return existing_user
-    
+
     new_user = User(
         telegram_id=telegram_id,
         username=username,
@@ -42,13 +42,15 @@ async def save_scan_record(
     ssl_info = raw_report.get("ssl_report") or {}
     headers_info = raw_report.get("headers_report") or {}
     files_info = raw_report.get("files_report") or {}
-    
+    html_info = raw_report.get('html_report') or {}
+
     new_scan = ScanRecord(
         user_id=user_id,
         target_url=target_url,
         ssl_valid=ssl_info.get("is_valid", False),
         headers_score=int(headers_info.get("safety_percentage", 0)),
         has_leaks=files_info.get("has_leaks", False),
+        has_html_issues=html_info.get('has_issues', False),
         raw_report=raw_report,
         ai_verdict=ai_verdict
     )

@@ -8,6 +8,7 @@ from src.bot.formatters import format_history_report
 
 router = Router(name="history")
 
+
 @router.message(Command("history"))
 async def cmd_history(message: Message) -> None:
     async with async_session() as session:

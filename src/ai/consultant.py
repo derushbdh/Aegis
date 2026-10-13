@@ -27,10 +27,14 @@ class SecurityAIConsultant:
         )
 
         content = response.choices[0].message.content or "{}"
-        
-        # Очищаем от возможных Markdown-обёрток ```json ... ```
-        clean_json = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.MULTILINE)
-        
+
+        clean_json = re.sub(
+            r"^```(?:json)?\s*|\s*```$",
+            "",
+            content.strip(),
+            flags=re.MULTILINE
+        )
+
         return AIConsultantReport.model_validate_json(clean_json)
 
 

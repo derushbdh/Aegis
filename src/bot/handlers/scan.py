@@ -13,7 +13,7 @@ router = Router(name="scan")
 
 @router.message(Command("scan"))
 async def cmd_scan(
-    message: Message, 
+    message: Message,
     command: CommandObject
     ) -> None:
     async with async_session() as session:
@@ -28,13 +28,20 @@ async def cmd_scan(
     if target_url is None:
         await message.answer("Укажите URL: /scan https://example.com")
         return
-    
+
+    target_url = target_url.strip()
+
     if not target_url.startswith(("http://", "https://")):
         target_url = f"https://{target_url}"
-    
+
     status_msg = await message.answer("🔍 Запускаю аудит безопасности...")
 
-    report = await run_security_scan(target_url)
+    try:
+        report = await run_security_scan(target_url)
+    except Exception as e:
+        await status_msg.edit_text(f"❌ <b>Не удалось проверить сайт:</b>\n{e}")
+        return
+
     response_text = format_scan_report(report)
     await status_msg.edit_text(response_text)
 

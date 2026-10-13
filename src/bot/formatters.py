@@ -9,6 +9,7 @@ def format_scan_report(report: dict) -> str:
     ssl = report.get("ssl_report", {})
     headers = report.get("headers_report", {})
     files = report.get("files_report", {})
+    html_info = report.get("html_report", {})
 
     lines = [
         "🛡 <b>Aegis Security Audit Report</b>",
@@ -55,6 +56,20 @@ def format_scan_report(report: dict) -> str:
             if f.get("is_exposed"):
                 f_path = html.escape(f.get("path", ""))
                 lines.append(f"    • ⚠️ <code>{f_path}</code> доступен публично!")
+
+    # --- Блок HTML-анализа ---
+    lines.append("")
+    lines.append("🌐 <b>HTML и разметка:</b>")
+    has_html_issues = html_info.get("has_issues", False)
+    if not has_html_issues:
+        lines.append("  ✅ Формы, комментарии и ссылки безопасны.")
+    else:
+        total_issues = html_info.get("total_issues", 0)
+        lines.append(f"  ⚠️ <b>Обнаружены риски в разметке (найдено: {total_issues}):</b>")
+        for finding in html_info.get("findings", []):
+            sev = str(finding.get("severity") or "low").upper()
+            desc = html.escape(str(finding.get("description", "")))
+            lines.append(f"    • <i>[{sev}]</i> {desc}")
 
     return "\n".join(lines)
 

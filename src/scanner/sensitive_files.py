@@ -26,21 +26,23 @@ TARGET_FILES = {
 
 class SensitiveFilesScanner(BaseScanner):
     def _is_file_exposed(
-        self, response: httpx.Response, 
+        self, response: httpx.Response,
         signature: str
-        ) -> bool:
-        if response.status_code == 200 and \
-            signature in response.text and \
-            "<html" not in response.text.lower():
+    ) -> bool:
+        if (
+            response.status_code == 200 and
+            signature in response.text and
+            "<html" not in response.text.lower()
+        ):
             return True
         return False
-    
+
     async def _check_file(
         self, client: httpx.AsyncClient,
-        base_url: str, 
-        path: str, 
+        base_url: str,
+        path: str,
         meta: dict
-        ) -> FileCheckResult:
+    ) -> FileCheckResult:
         file_url = f"{base_url.rstrip('/')}{path}"
 
         try:
@@ -48,20 +50,19 @@ class SensitiveFilesScanner(BaseScanner):
             is_exposed = self._is_file_exposed(response, meta["signature"])
         except httpx.RequestError:
             is_exposed = False
-        
+
         return FileCheckResult(
-            path=path, 
+            path=path,
             is_exposed=is_exposed,
             url=file_url,
             severity=meta["severity"],
             description=meta["description"]
         )
 
-        
     async def scan(
-        self, 
+        self,
         url: str
-        ) -> SensitiveFilesReport:
+    ) -> SensitiveFilesReport:
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"
 
@@ -71,14 +72,14 @@ class SensitiveFilesScanner(BaseScanner):
             follow_redirects=True
         ) as client:
             tasks = [
-                self._check_file(client, url, path, meta) 
+                self._check_file(client, url, path, meta)
                 for path, meta in TARGET_FILES.items()
             ]
 
             results = await asyncio.gather(*tasks)
 
         leaked_count = sum(True for r in results if r.is_exposed)
-        
+
         return SensitiveFilesReport(
             target_url=url,
             files=results,
