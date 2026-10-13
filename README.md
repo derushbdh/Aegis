@@ -19,6 +19,7 @@ Automated black-box DAST (Dynamic Application Security Testing) web vulnerabilit
 - **Security Headers Analyzer:** Evaluates presence and configuration of HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy with safety scoring.
 - **Sensitive Files Exposure Detection:** Scans for publicly exposed `.env`, `.git/HEAD`, `docker-compose.yml`, backup archives, and database dumps.
 - **HTML Vulnerabilities Analyzer:** Analyzes CSRF, URL and blank links redirect security.
+- **Cookies Flags:** Finding out the cookies security flags (HttpOnly, Secure, SameSite).
 - **Local AI White-Hat Consultant:** Integrates with local LLMs (Qwen 2.5 Coder via LM Studio) to analyze technical scan dumps, prioritize risks, and formulate concrete remediation steps.
 - **Audit History & User Persistence:** PostgreSQL persistence powered by SQLAlchemy 2.0 and Alembic migrations tracking scan history and user profiles.
 - **Asynchronous Task Architecture:** Distributed, non-blocking scan execution powered by Taskiq and Redis queue broker.
