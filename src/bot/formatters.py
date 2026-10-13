@@ -10,6 +10,7 @@ def format_scan_report(report: dict) -> str:
     headers = report.get("headers_report", {})
     files = report.get("files_report", {})
     html_info = report.get("html_report", {})
+    cookies_info = report.get("cookies_report", {})
 
     lines = [
         "🛡 <b>Aegis Security Audit Report</b>",
@@ -70,6 +71,24 @@ def format_scan_report(report: dict) -> str:
             sev = str(finding.get("severity") or "low").upper()
             desc = html.escape(str(finding.get("description", "")))
             lines.append(f"    • <i>[{sev}]</i> {desc}")
+
+    # --- Блок Безопасности Cookies ---
+    lines.append("")
+    lines.append("🍪 <b>Безопасность Cookies:</b>")
+    total_cookies = cookies_info.get("total_cookies", 0)
+    has_cookie_issues = cookies_info.get("has_issues", False)
+    if total_cookies == 0:
+        lines.append("  ℹ️ Сайт не устанавливает cookies.")
+    elif not has_cookie_issues:
+        lines.append(f"  ✅ Все cookies ({total_cookies} шт.) защищены флагами безопасности.")
+    else:
+        c_findings = cookies_info.get("findings", [])
+        lines.append(f"  ⚠️ <b>Обнаружены риски в cookies (проблем: {len(c_findings)}):</b>")
+        for cf in c_findings:
+            c_name = html.escape(str(cf.get("cookie_name", "")))
+            sev = str(cf.get("severity") or "medium").upper()
+            desc = html.escape(str(cf.get("description", "")))
+            lines.append(f"    • <code>{c_name}</code>: <i>[{sev}]</i> {desc}")
 
     return "\n".join(lines)
 

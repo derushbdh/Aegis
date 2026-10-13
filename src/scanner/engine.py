@@ -1,6 +1,6 @@
 import asyncio
 
-from src.scanner import HeadersScanner, SSLScanner, SensitiveFilesScanner, HTMLScanner
+from src.scanner import HeadersScanner, SSLScanner, SensitiveFilesScanner, HTMLScanner, CookiesScanner
 from src.scanner.schemas import FullScanReport
 
 
@@ -11,10 +11,11 @@ class SecurityScanner:
             SSLScanner(),
             SensitiveFilesScanner(),
             HTMLScanner(),
+            CookiesScanner(),
         ]
 
     async def start_scan(self, url: str) -> FullScanReport:
-        headers_report, ssl_report, files_report, html_report = await asyncio.gather(
+        headers_report, ssl_report, files_report, html_report, cookies_report = await asyncio.gather(
             *(scanner.scan(url) for scanner in self.scanners)
         )
 
@@ -24,6 +25,7 @@ class SecurityScanner:
             ssl_report=ssl_report,
             files_report=files_report,
             html_report=html_report,
+            cookies_report=cookies_report,
         )
 
 

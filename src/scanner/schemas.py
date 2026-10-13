@@ -60,9 +60,23 @@ class HTMLScanReport(BaseModel):
     total_issues: int = 0
 
 
+class CookieFinding(BaseModel):
+    cookie_name: str
+    severity: Severity
+    description: str
+
+
+class CookiesScanReport(BaseModel):
+    target_url: str
+    total_cookies: int = 0
+    has_issues: bool = False
+    findings: list[CookieFinding] = []
+
+
 class FullScanReport(BaseModel):
     url: str
     headers_report: HeadersScanReport
     ssl_report: SSLScanReport
     files_report: SensitiveFilesReport
     html_report: HTMLScanReport
+    cookies_report: CookiesScanReport

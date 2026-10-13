@@ -43,6 +43,7 @@ async def save_scan_record(
     headers_info = raw_report.get("headers_report") or {}
     files_info = raw_report.get("files_report") or {}
     html_info = raw_report.get('html_report') or {}
+    cookies_info = raw_report.get('cookies_report') or {}
 
     new_scan = ScanRecord(
         user_id=user_id,
@@ -51,8 +52,9 @@ async def save_scan_record(
         headers_score=int(headers_info.get("safety_percentage", 0)),
         has_leaks=files_info.get("has_leaks", False),
         has_html_issues=html_info.get('has_issues', False),
+        cookies_issues=cookies_info.get('has_issues', False),
         raw_report=raw_report,
-        ai_verdict=ai_verdict
+        ai_verdict=ai_verdict,
     )
 
     session.add(new_scan)

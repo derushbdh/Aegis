@@ -2,6 +2,7 @@ from src.scanner.headers import HeadersScanner
 from src.scanner.ssl_scanner import SSLScanner
 from src.scanner.sensitive_files import SensitiveFilesScanner
 from src.scanner.html_scanner import HTMLScanner
+from src.scanner.cookies_scanner import CookiesScanner
 from src.scanner.engine import SecurityScanner, security_scanner
 
 __all__ = [
@@ -10,5 +11,6 @@ __all__ = [
     "SensitiveFilesScanner",
     "SecurityScanner",
     "security_scanner",
-    "HTMLScanner",
+    'HTMLScanner',
+    'CookiesScanner',
 ]
